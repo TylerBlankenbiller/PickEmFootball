@@ -2,19 +2,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-homeTeam= '49ers'
-awayTeam= 'Cowboys'
+homeTeam= 'Raiders'
+awayTeam= 'Broncos'
 
 data = pd.read_csv('picks.csv', low_memory=False)
 
-winners = pd.read_csv('newPreSeason.csv', low_memory=False)
-
-winners = winners.loc[(winners.Month == 8) & (winners.Day <= 10)]
+winners = pd.read_csv('regSeason.csv', low_memory=False)
+print(winners)
+#winners = winners.loc[(winners.Month == 8) & (winners.Day <= 10)]
 
 names = data['Name'].unique()
 
 finalPicks = pd.DataFrame(columns=['Name', 'HomeScore', 'AwayScore', '49ers', 'Bears', 'Bengals', 'Bills', 
-                            'Broncos', 'Browns', 'Bucaneers', 'Cardinals', 'Chargers', 'Chiefs', 'Colts',
+                            'Broncos', 'Browns', 'Buccaneers', 'Cardinals', 'Chargers', 'Chiefs', 'Colts',
                             'Cowboys', 'Dolphins', 'Eagles', 'Falcons', 'Giants', 'Jaguars', 'Jets', 'Lions',
                             'Packers', 'Panthers', 'Patriots', 'Raiders', 'Rams', 'Ravens', 'Redskins', 
                             'Saints', 'Seahawks', 'Steelers', 'Texans', 'Titans', 'Vikings'])
@@ -28,7 +28,7 @@ columns.remove('Hour')
 columns.remove('Minute')
 for name in names:
     series = pd.DataFrame({'Name':['a'], 'HomeScore':[0], 'AwayScore':[0], '49ers':[0], 'Bears':[0], 
-                            'Bengals':[0], 'Bills':[0], 'Broncos':[0], 'Browns':[0], 'Bucaneers':[0],
+                            'Bengals':[0], 'Bills':[0], 'Broncos':[0], 'Browns':[0], 'Buccaneers':[0],
                             'Cardinals':[0], 'Chargers':[0], 'Chiefs':[0], 'Colts':[0], 'Cowboys':[0], 
                             'Dolphins':[0], 'Eagles':[0], 'Falcons':[0], 'Giants':[0], 'Jaguars':[0], 
                             'Jets':[0], 'Lions':[0], 'Packers':[0], 'Panthers':[0], 'Patriots':[0],
@@ -38,32 +38,38 @@ for name in names:
         if(name == row['Name']):
             series['Name'] = name
             for column in columns:
-                if(row[column] == column):#Check if picked to win
-                    loser = winners.loc[(winners.VisTm == column) | (winners.HomeTm == column)]
-                    if((row['Month'] == loser['Month'].iloc[0] and row['Day'] == loser['Day'].iloc[0] and row['Hour'] == loser['Hour'].iloc[0] and row['Minute'] < loser['Minute'].iloc[0])
-                        or (row['Month'] == loser['Month'].iloc[0] and row['Day'] == loser['Day'].iloc[0] and row['Hour'] < loser['Hour'].iloc[0])
-                        or (row['Month'] == loser['Month'].iloc[0] and row['Day'] < loser['Day'].iloc[0])
-                        or (row['Month'] < loser['Month'].iloc[0])):
-                        series[column] = 1
-                        if(loser['VisTm'].iloc[0] == column):
-                            series[loser['HomeTm'].iloc[0]] = 0
-                        else:
-                            series[loser['VisTm'].iloc[0]] = 0
+                if(row[column] != '0'):#Check if picked to win
+                    winTeam = row[column]
+                    print(winTeam)
+                    loser = winners.loc[(winners.VisTm == winTeam) | (winners.HomeTm == winTeam)]
+                    print(loser)
+                    print('Here')
+                    if(loser.empty == False):
+                        if((row['Month'] == loser['Month'].iloc[0] and row['Day'] == loser['Day'].iloc[0] and row['Hour'] == loser['Hour'].iloc[0] and row['Minute'] < loser['Minute'].iloc[0])
+                            or (row['Month'] == loser['Month'].iloc[0] and row['Day'] == loser['Day'].iloc[0] and row['Hour'] < loser['Hour'].iloc[0])
+                            or (row['Month'] == loser['Month'].iloc[0] and row['Day'] < loser['Day'].iloc[0])
+                            or (row['Month'] < loser['Month'].iloc[0])):
+                            series[winTeam] = 1
+                            if(loser['VisTm'].iloc[0] == winTeam):
+                                series[loser['HomeTm'].iloc[0]] = 0
+                            else:
+                                series[loser['VisTm'].iloc[0]] = 0
                 elif(column == 'HomeScore'):
                     loser = winners.loc[(winners.HomeTm == homeTeam)]
-                    if((row['Month'] == loser['Month'].iloc[0] and row['Day'] == loser['Day'].iloc[0] and row['Hour'] == loser['Hour'].iloc[0] and row['Minute'] < loser['Minute'].iloc[0])
-                        or (row['Month'] == loser['Month'].iloc[0] and row['Day'] == loser['Day'].iloc[0] and row['Hour'] < loser['Hour'].iloc[0])
-                        or (row['Month'] == loser['Month'].iloc[0] and row['Day'] < loser['Day'].iloc[0])
-                        or (row['Month'] < loser['Month'].iloc[0])
-                        and ((row['HomeScore'] != '') or (row['AwayScore'] != ''))):
-                        series['HomeScore'] = row['HomeScore']
-                        series['AwayScore'] = row['AwayScore']
-                        if(row['HomeScore'] > row['AwayScore']):
-                            series[homeTeam] = 1
-                            series[awayTeam] = 0
-                        else:
-                            series[homeTeam] = 0
-                            series[awayTeam] = 1
+                    if(loser.empty == False):
+                        if((row['Month'] == loser['Month'].iloc[0] and row['Day'] == loser['Day'].iloc[0] and row['Hour'] == loser['Hour'].iloc[0] and row['Minute'] < loser['Minute'].iloc[0])
+                            or (row['Month'] == loser['Month'].iloc[0] and row['Day'] == loser['Day'].iloc[0] and row['Hour'] < loser['Hour'].iloc[0])
+                            or (row['Month'] == loser['Month'].iloc[0] and row['Day'] < loser['Day'].iloc[0])
+                            or (row['Month'] < loser['Month'].iloc[0])
+                            and ((row['HomeScore'] != '') or (row['AwayScore'] != ''))):
+                            series['HomeScore'] = row['HomeScore']
+                            series['AwayScore'] = row['AwayScore']
+                            if(row['HomeScore'] > row['AwayScore']):
+                                series[homeTeam] = 1
+                                series[awayTeam] = 0
+                            else:
+                                series[homeTeam] = 0
+                                series[awayTeam] = 1
                         
     
     finalPicks = finalPicks.append(series, ignore_index=True)
